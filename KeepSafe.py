@@ -6,7 +6,7 @@ import io
 import didumean as did_u
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 my_file = os.path.join(THIS_FOLDER, 'holder.yml')
-
+ur_key=300
 def Enc():
     my_file2 = os.path.join(THIS_FOLDER, 'holder.yml').encode("ascii")
     new_file2 =os.path.join(THIS_FOLDER, 'temp.yml').encode("ascii")
@@ -14,7 +14,7 @@ def Enc():
       with io.open(new_file2, "w", encoding="utf-8") as d:
         for line in f:
           for ch in line:
-            d.write(chr((ord(ch) + 30)%256))
+            d.write(chr((ord(ch) + ur_key)%256))
     d.close()
     f.close()
     os.remove(my_file2)
@@ -27,7 +27,7 @@ def Dec():
       with io.open(new_file3, "w", encoding="utf-8") as d:
         for line in f:
           for ch in line:
-            d.write(chr((ord(ch) - 30)%256))
+            d.write(chr((ord(ch) - ur_key)%256))
     d.close()
     f.close()
     os.remove(my_file3)
@@ -230,12 +230,7 @@ while True:
     elif(choose=='5'):
         ALL()
     elif(choose=='6'):
-        
         quit()
-    elif(choose=='99'):
-        Enc()
-    elif(choose=='999'):
-        Dec()    
     else:       
         print("Choose one of 'em!!@!")
 
