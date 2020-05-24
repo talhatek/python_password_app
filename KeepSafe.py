@@ -5,7 +5,7 @@ import json
 import io
 import shutil
 import didumean as did_u
-
+import passwordGenerate as psw
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 my_file = os.path.join(THIS_FOLDER, 'holder.yml')
 my_error_file = os.path.join(THIS_FOLDER, 'forerror.yml')
@@ -284,10 +284,16 @@ while True:
         +------------------------+
         """)
         getC = input("""
-        +------------------------+
-        | Give me the password   |
-        +------------------------+
+        +---------------------------+
+        | Give me the password (g)  |
+        +---------------------------+
         """)
+        if getC == 'g':
+            while True:
+                getC=psw.generate()
+                liked=input("Regenerate password (r)")
+                if liked != 'r':
+                    break
         Write(getA, getB, getC)
     elif choose == '2':
         getA = input("""
