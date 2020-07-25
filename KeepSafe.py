@@ -6,6 +6,9 @@ import io
 import shutil
 import didumean as did_u
 import passwordGenerate as psw
+from model import Password
+import db
+db.user="holder"
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 my_file = os.path.join(THIS_FOLDER, 'holder.yml')
 my_error_file = os.path.join(THIS_FOLDER, 'forerror.yml')
@@ -81,15 +84,11 @@ def Read(a):
         else:
             Enc(onlyPassword)
             return None
-            # for key,value in data.items():
-        #    might.append(value)
-        # Enc()
-        # return None
+         
     else:
         fixer.append(a)
     for key, value in asil.items():
         fixer.append(value)
-    # print("Kullanici adi : {} Sifre : {} ".format(fixer[0],fixer[1]))
     Enc(onlyPassword)
     return fixer
 
@@ -111,8 +110,49 @@ def Write(a, b, c):
     Enc(onlyPassword)
     global askToCopy
     askToCopy = True
+    db.save(Password(a,b,c))
     print("Added!!!")
-    print(askToCopy)
+
+
+def SyncWrite(listOfPassword):
+    data={}
+    for i in range(len(listOfPassword)):
+        data.update({listOfPassword[i].site_name: {'kullanici_adi': listOfPassword[i].user_name, 'sifre': listOfPassword[i].password}})
+    Dec(onlyPassword)
+    try:
+        with open(my_file, "a") as rawD:
+            yaml.dump(data, rawD)
+    except:
+        print("""
+        +------------------------+
+        |    Fuck of Looser      |
+        +------------------------+
+        """)
+        savePassword()
+        quit()
+    Enc(onlyPassword)
+    global askToCopy
+    askToCopy = True
+    for i in  range(len(listOfPassword)):
+        db.delete(listOfPassword[i].site_name)
+    print("synchronized!!!")
+
+
+def CheckDb():
+    dbLen=db.count()
+    if dbLen != 0 and dbLen % 3 == 0:
+        doOrDont=input("""
+        +--------------------------------+
+        | An update available.           |
+        | Do you wanna download it ? (y) |
+        +--------------------------------+
+        """)
+        if doOrDont == 'y':
+            rawRows=db.fetchMissing(dbLen)
+
+            SyncWrite(rawRows)
+    else:
+        return
 
 
 def isExist(a):
@@ -145,7 +185,7 @@ def Update(a, b, c):
     Dec(onlyPassword)
     try:
         with open(my_file, "r") as rawD:
-            data = yaml.load(rawD, Loader=yaml.FullLoader)
+            yaml.load(rawD, Loader=yaml.FullLoader)
     except Exception as ex:
         print("""
         +------------------------+
@@ -176,7 +216,7 @@ def Delete(a, bol):
     Dec(onlyPassword)
     try:
         with open(my_file, "r") as rawD:
-            data = yaml.load(rawD, Loader=yaml.FullLoader)
+            yaml.load(rawD, Loader=yaml.FullLoader)
     except Exception as ex:
         print("""
         +------------------------+
@@ -222,16 +262,16 @@ def ALL():
     except Exception as ex:
         print("""
         +------------------------+
-        |    Fuck of Looser      |
+        |    Fuck of Looser {}   |
         +------------------------+
-        """)
+        """.format(ex))
         savePassword()
         quit()
     if data is None:
         print("Ups. Looks like we have nothing to show :) ")
         Enc(onlyPassword)
         return
-    for key, value in data.items():
+    for key in data.keys():
         print("""
         +------------------------+
         | {}. site | {}
@@ -239,6 +279,29 @@ def ALL():
         """.format(str(cnt), key))
         cnt = cnt + 1
     Enc(onlyPassword)
+
+
+def COUNT():
+    Dec(onlyPassword)
+    try:
+        with open(my_file, "r") as rawD:
+            data = yaml.load(rawD, Loader=yaml.FullLoader)
+    except Exception as ex:
+        print("""
+        +--------------------------+
+        |    Fuck of Looser   {}   |
+        +--------------------------+
+        """.format(ex))
+        savePassword()
+        quit()
+    if data is None:
+        print("Ups. Looks like we have nothing to show :) ")
+        Enc(onlyPassword)
+        return
+    else:
+        temp = (len(data.items()))
+    Enc(onlyPassword)
+    return temp
 
 
 def savePassword():
@@ -257,7 +320,7 @@ onlyPasswordStr = input("""
 +--------------------------------------------+
 """)
 onlyPassword = int(onlyPasswordStr)
-
+CheckDb()
 while True:
 
     choose = input("""
@@ -269,7 +332,8 @@ while True:
     | 3.Update Password  |
     | 4.Delete Password  |
     | 5.Display ALL      |
-    | 6.Quit             |
+    | 6.IDLE             |
+    | 7.Quit             |
     +--------------------+
     """)
     if choose == '1':
@@ -345,6 +409,8 @@ while True:
     elif choose == '5':
         ALL()
     elif choose == '6':
+        pass
+    elif choose == '7':
         if askToCopy:
             getSave = input("""
             +-----------------------------------+
